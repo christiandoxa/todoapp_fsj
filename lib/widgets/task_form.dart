@@ -6,7 +6,7 @@ class TaskForm extends StatefulWidget {
   final TextEditingController titleController;
   final TextEditingController descController;
   final Timestamp deadline;
-  final Function onSubmit;
+  final Function(Timestamp deadline) onSubmit;
   final bool loading;
   final String btnText;
 
@@ -131,7 +131,8 @@ class _TaskFormState extends State<TaskForm> {
             SizedBox(
               width: MediaQuery.of(context).size.width,
               child: RaisedButton(
-                onPressed: widget.loading ? null : widget.onSubmit,
+                onPressed:
+                    widget.loading ? null : () => widget.onSubmit(_deadline),
                 child: widget.loading
                     ? CircularProgressIndicator()
                     : Text(widget.btnText),

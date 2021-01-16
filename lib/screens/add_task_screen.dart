@@ -29,7 +29,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     super.dispose();
   }
 
-  void _onAddTask() async {
+  void _onAddTask(Timestamp deadline) async {
     if (!_loading && _formKey.currentState.validate()) {
       try {
         setState(() {
@@ -38,7 +38,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         await tasks.add({
           "title": _titleController.text,
           "description": _descController.text,
-          "deadline": _deadline,
+          "deadline": deadline,
         });
         Navigator.of(context).pop();
       } catch (error) {

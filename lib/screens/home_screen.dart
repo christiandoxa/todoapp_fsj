@@ -35,6 +35,10 @@ class _HomeScreenState extends State<HomeScreen> {
           .collection('users')
           .doc(_auth.currentUser.uid)
           .collection("tasks")
+          .orderBy(
+            'deadline',
+            descending: false,
+          )
           .snapshots(),
     );
   }

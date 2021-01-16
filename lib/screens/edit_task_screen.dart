@@ -49,7 +49,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     super.dispose();
   }
 
-  void _onEditTask() async {
+  void _onEditTask(Timestamp deadline) async {
     if (!_loading && _formKey.currentState.validate()) {
       try {
         setState(() {
@@ -58,7 +58,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         await tasks.doc(widget.id).update({
           "title": _titleController.text,
           "description": _descController.text,
-          "deadline": _deadline,
+          "deadline": deadline,
         });
         Navigator.of(context).pop();
       } catch (error) {
