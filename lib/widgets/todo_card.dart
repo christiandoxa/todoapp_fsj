@@ -32,6 +32,8 @@ class ToDoCard extends StatelessWidget {
               )
             : null,
         trailing: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('${deadline.day}/${deadline.month}/${deadline.year}'),
             Text('${deadline.hour}:${deadline.minute}'),

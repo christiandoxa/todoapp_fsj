@@ -32,6 +32,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
       .collection('tasks');
   Timestamp _deadline = Timestamp.now();
   bool _loading = false;
+  bool _loadingDelete = false;
 
   @override
   void initState() {
@@ -65,9 +66,26 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
           _loading = false;
         });
         _scaffoldKey.currentState
-            .showSnackBar(SnackBar(content: Text("Error add data")));
+            .showSnackBar(SnackBar(content: Text("Error edit data")));
         print(error);
       }
+    }
+  }
+
+  void _onDelete() async {
+    try {
+      setState(() {
+        _loadingDelete = true;
+      });
+      await tasks.doc(widget.id).delete();
+      Navigator.of(context).pop();
+    } catch (e) {
+      setState(() {
+        _loadingDelete = false;
+      });
+      _scaffoldKey.currentState
+          .showSnackBar(SnackBar(content: Text("Error delete data")));
+      print(e);
     }
   }
 
@@ -77,6 +95,16 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Ubah'),
+        actions: [
+          _loadingDelete
+              ? CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation(Colors.white),
+                )
+              : IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: _onDelete,
+                ),
+        ],
       ),
       body: SingleChildScrollView(
         child: TaskForm(
