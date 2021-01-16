@@ -63,7 +63,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ToDoCard(
               id: '2',
               title: 'Task B',
-              desc: 'deskripsi task B',
               deadline: DateTime.now(),
             ),
           ],

@@ -10,8 +10,8 @@ class ToDoCard extends StatelessWidget {
     Key key,
     @required this.id,
     @required this.title,
-    @required this.desc,
     @required this.deadline,
+    this.desc,
   }) : super(key: key);
 
   @override
@@ -23,11 +23,13 @@ class ToDoCard extends StatelessWidget {
           title,
           style: Theme.of(context).textTheme.headline6,
         ),
-        subtitle: Text(
-          desc,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: Text(deadline.toString()),
+        subtitle: desc != null
+            ? Text(
+                desc,
+                overflow: TextOverflow.ellipsis,
+              )
+            : null,
+        trailing: Text('${deadline.day}/${deadline.month}/${deadline.year}'),
       ),
     );
   }
