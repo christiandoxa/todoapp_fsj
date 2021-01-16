@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:todoapp_fsj/screens/home_screen.dart';
 import 'package:todoapp_fsj/screens/register_screen.dart';
 
@@ -10,6 +11,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  GoogleSignIn _googleSignIn = GoogleSignIn();
+
   void _onLogin() {
     Navigator.pushReplacement(
       context,
@@ -24,7 +27,16 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _onSignInWithGoogle() {}
+  Future<void> _onSignInWithGoogle() async {
+    try {
+      GoogleSignInAccount account = await _googleSignIn.signIn();
+      print(account.email);
+      print(account.displayName);
+      print(account.photoUrl);
+    } catch (error) {
+      print(error);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
