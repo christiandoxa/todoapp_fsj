@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class AddTaskScreen extends StatefulWidget {
@@ -9,9 +10,14 @@ class AddTaskScreen extends StatefulWidget {
 }
 
 class _AddTaskScreenState extends State<AddTaskScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
+  final CollectionReference tasks = FirebaseFirestore.instance
+      .collection("users")
+      .doc(FirebaseAuth.instance.currentUser.uid)
+      .collection('tasks');
   Timestamp _deadline = Timestamp.now();
   bool _loading = false;
 
@@ -22,11 +28,26 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     super.dispose();
   }
 
-  void _onAddTask() {
+  void _onAddTask() async {
     if (!_loading && _formKey.currentState.validate()) {
-      setState(() {
-        _loading = true;
-      });
+      try {
+        setState(() {
+          _loading = true;
+        });
+        await tasks.add({
+          "title": _titleController.text,
+          "description": _descController.text,
+          "deadline": _deadline,
+        });
+        Navigator.of(context).pop();
+      } catch (error) {
+        setState(() {
+          _loading = false;
+        });
+        _scaffoldKey.currentState
+            .showSnackBar(SnackBar(content: Text("Error add data")));
+        print(error);
+      }
     }
   }
 
@@ -73,6 +94,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     DateTime _date = _deadline.toDate();
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Tambah'),
       ),
@@ -134,7 +156,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   child: RaisedButton(
                     onPressed: _loading ? null : _onAddTask,
                     child:
-                        _loading ? CircularProgressIndicator() : Text('Tambah'),
+                    _loading ? CircularProgressIndicator() : Text('Tambah'),
                   ),
                 ),
               ],
