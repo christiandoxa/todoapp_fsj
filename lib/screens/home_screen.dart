@@ -1,5 +1,8 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:todoapp_fsj/screens/add_task_screen.dart';
 import 'package:todoapp_fsj/screens/login_screen.dart';
 import 'package:todoapp_fsj/widgets/todo_card.dart';
@@ -17,7 +20,27 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  GoogleSignIn _googleSignIn = GoogleSignIn();
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  StreamController<QuerySnapshot> documentStream =
+      StreamController<QuerySnapshot>();
+
+  @override
+  void initState() {
+    super.initState();
+    documentStream.addStream(
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(_auth.currentUser.uid)
+          .collection("tasks")
+          .snapshots(),
+    );
+  }
+
+  @override
+  void dispose() {
+    documentStream.close();
+    super.dispose();
+  }
 
   void _goToAddScreen() {
     Navigator.push(
@@ -28,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onLogout() async {
     try {
-      await _googleSignIn.signOut();
+      await _auth.signOut();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -51,22 +74,29 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            ToDoCard(
-              id: '1',
-              title: 'Task A',
-              desc: 'deskripsi task A',
-              deadline: DateTime.now(),
-            ),
-            ToDoCard(
-              id: '2',
-              title: 'Task B',
-              deadline: DateTime.now(),
-            ),
-          ],
-        ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: documentStream.stream,
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            Scaffold.of(context).showSnackBar(SnackBar(content: Text("error")));
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          }
+          List<QueryDocumentSnapshot> list = snapshot.data.docs;
+          return ListView.builder(
+            itemBuilder: (BuildContext context, int position) {
+              QueryDocumentSnapshot document = list[position];
+              return ToDoCard(
+                id: document.id,
+                title: document.data()["title"],
+                desc: document.data()["description"],
+                deadline: (document.data()["deadline"] as Timestamp).toDate(),
+              );
+            },
+            itemCount: list.length,
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _goToAddScreen,

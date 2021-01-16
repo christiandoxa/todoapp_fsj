@@ -1,6 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:todoapp_fsj/screens/home_screen.dart';
 import 'package:todoapp_fsj/screens/login_screen.dart';
 
@@ -11,7 +11,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final GoogleSignInAccount _currentUser = GoogleSignIn().currentUser;
+  final User _currentUser = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) {
