@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:todoapp_fsj/screens/home_screen.dart';
-import 'package:todoapp_fsj/screens/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key key}) : super(key: key);
@@ -11,28 +10,19 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  GoogleSignIn _googleSignIn = GoogleSignIn();
-
-  void _onLogin() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => HomeScreen()),
-    );
-  }
-
-  void _goToRegisterScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => RegisterScreen()),
-    );
-  }
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   Future<void> _onSignInWithGoogle() async {
     try {
       GoogleSignInAccount account = await _googleSignIn.signIn();
-      print(account.email);
-      print(account.displayName);
-      print(account.photoUrl);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(
+            name: account.displayName,
+          ),
+        ),
+      );
     } catch (error) {
       print(error);
     }
@@ -42,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        title: Text('ToDo'),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
@@ -50,34 +40,6 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextFormField(
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                ),
-              ),
-              TextFormField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                ),
-              ),
-              SizedBox(height: 18),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: RaisedButton(
-                  onPressed: _onLogin,
-                  child: Text('Masuk'),
-                ),
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: FlatButton(
-                  onPressed: _goToRegisterScreen,
-                  child: Text('Daftar'),
-                ),
-              ),
-              Divider(),
               RaisedButton(
                 onPressed: _onSignInWithGoogle,
                 child: Text('Masuk dengan Google'),

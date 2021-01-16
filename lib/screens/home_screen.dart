@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:todoapp_fsj/screens/add_task_screen.dart';
 import 'package:todoapp_fsj/screens/login_screen.dart';
 import 'package:todoapp_fsj/widgets/todo_card.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key key}) : super(key: key);
+  final String name;
+
+  HomeScreen({
+    Key key,
+    @required this.name,
+  }) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  GoogleSignIn _googleSignIn = GoogleSignIn();
+
   void _goToAddScreen() {
     Navigator.push(
       context,
@@ -18,18 +26,23 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _onLogout() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => LoginScreen()),
-    );
+  void _onLogout() async {
+    try {
+      await _googleSignIn.signOut();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+      );
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('ToDo List'),
+        title: Text('ToDo List - ${widget.name}'),
         actions: [
           IconButton(
             onPressed: _onLogout,
