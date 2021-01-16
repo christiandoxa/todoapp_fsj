@@ -24,6 +24,8 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  void _onSignInWithGoogle() {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,7 +64,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: _goToRegisterScreen,
                   child: Text('Daftar'),
                 ),
-              )
+              ),
+              Divider(),
+              RaisedButton(
+                onPressed: _onSignInWithGoogle,
+                child: Text('Masuk dengan Google'),
+              ),
             ],
           ),
         ),
