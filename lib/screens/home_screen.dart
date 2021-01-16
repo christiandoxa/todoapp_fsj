@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:todoapp_fsj/screens/add_task_screen.dart';
+import 'package:todoapp_fsj/screens/edit_task_screen.dart';
 import 'package:todoapp_fsj/screens/login_screen.dart';
 import 'package:todoapp_fsj/widgets/todo_card.dart';
 
@@ -20,6 +22,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
   FirebaseAuth _auth = FirebaseAuth.instance;
   StreamController<QuerySnapshot> documentStream =
       StreamController<QuerySnapshot>();
@@ -52,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onLogout() async {
     try {
       await _auth.signOut();
+      await _googleSignIn.signOut();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -59,6 +63,20 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       print(e);
     }
+  }
+
+  void _goToEdit(QueryDocumentSnapshot documentSnapshot) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditTaskScreen(
+          id: documentSnapshot.id,
+          title: documentSnapshot.data()['title'],
+          desc: documentSnapshot.data()['description'],
+          deadline: documentSnapshot.data()['deadline'],
+        ),
+      ),
+    );
   }
 
   @override
@@ -81,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Scaffold.of(context).showSnackBar(SnackBar(content: Text("error")));
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
+            return Center(child: CircularProgressIndicator());
           }
           List<QueryDocumentSnapshot> list = snapshot.data.docs;
           return ListView.builder(
@@ -92,6 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: document.data()["title"],
                 desc: document.data()["description"],
                 deadline: (document.data()["deadline"] as Timestamp).toDate(),
+                onTap: () => _goToEdit(document),
               );
             },
             itemCount: list.length,

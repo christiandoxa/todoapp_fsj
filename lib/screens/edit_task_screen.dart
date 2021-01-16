@@ -3,14 +3,25 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:todoapp_fsj/widgets/task_form.dart';
 
-class AddTaskScreen extends StatefulWidget {
-  AddTaskScreen({Key key}) : super(key: key);
+class EditTaskScreen extends StatefulWidget {
+  final String id;
+  final String title;
+  final String desc;
+  final Timestamp deadline;
+
+  EditTaskScreen({
+    Key key,
+    @required this.id,
+    @required this.title,
+    @required this.deadline,
+    this.desc,
+  }) : super(key: key);
 
   @override
-  _AddTaskScreenState createState() => _AddTaskScreenState();
+  _EditTaskScreenState createState() => _EditTaskScreenState();
 }
 
-class _AddTaskScreenState extends State<AddTaskScreen> {
+class _EditTaskScreenState extends State<EditTaskScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
@@ -23,19 +34,27 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   bool _loading = false;
 
   @override
+  void initState() {
+    super.initState();
+    _titleController.text = widget.title;
+    _descController.text = widget.desc;
+    _deadline = widget.deadline;
+  }
+
+  @override
   void dispose() {
     _titleController?.dispose();
     _descController?.dispose();
     super.dispose();
   }
 
-  void _onAddTask() async {
+  void _onEditTask() async {
     if (!_loading && _formKey.currentState.validate()) {
       try {
         setState(() {
           _loading = true;
         });
-        await tasks.add({
+        await tasks.doc(widget.id).update({
           "title": _titleController.text,
           "description": _descController.text,
           "deadline": _deadline,
@@ -57,7 +76,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Tambah'),
+        title: Text('Ubah'),
       ),
       body: SingleChildScrollView(
         child: TaskForm(
@@ -65,9 +84,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           titleController: _titleController,
           descController: _descController,
           deadline: _deadline,
-          onSubmit: _onAddTask,
+          onSubmit: _onEditTask,
           loading: _loading,
-          btnText: 'Tambah',
+          btnText: 'Ubah',
         ),
       ),
     );
