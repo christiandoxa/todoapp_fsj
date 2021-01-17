@@ -102,7 +102,9 @@ class _HomeScreenState extends State<HomeScreen> {
         stream: documentStream.stream,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
-            Scaffold.of(context).showSnackBar(SnackBar(content: Text("error")));
+            return Center(
+                child:
+                    Text("failed to fetch data ${snapshot.error.toString()}"));
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
