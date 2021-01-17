@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class ToDoCard extends StatelessWidget {
+class TodoCard extends StatelessWidget {
   final String id;
   final String title;
   final String desc;
   final DateTime deadline;
   final Function onTap;
 
-  const ToDoCard({
+  const TodoCard({
     Key key,
     @required this.id,
     @required this.title,

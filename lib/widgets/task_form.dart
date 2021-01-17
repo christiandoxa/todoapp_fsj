@@ -5,24 +5,24 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class TaskForm extends StatefulWidget {
-  final GlobalKey<FormState> formKey;
-  final TextEditingController titleController;
-  final TextEditingController descController;
-  final Timestamp deadline;
-  final Function(Timestamp deadline, File file) onSubmit;
   final bool loading;
+  final Function(Timestamp deadline, File file) onSubmit;
+  final GlobalKey<FormState> formKey;
   final String btnText;
   final String imageUrl;
+  final TextEditingController descController;
+  final TextEditingController titleController;
+  final Timestamp deadline;
 
   const TaskForm({
     Key key,
     @required this.formKey,
     @required this.titleController,
     @required this.descController,
-    @required this.deadline,
     @required this.onSubmit,
     @required this.loading,
     @required this.btnText,
+    this.deadline,
     this.imageUrl,
   }) : super(key: key);
 
@@ -38,7 +38,7 @@ class _TaskFormState extends State<TaskForm> {
   @override
   void initState() {
     super.initState();
-    _deadline = widget.deadline;
+    _deadline = widget.deadline ?? Timestamp.now();
   }
 
   void _selectDate() async {

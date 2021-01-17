@@ -22,9 +22,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
-  FirebaseAuth _auth = FirebaseAuth.instance;
-  StreamController<QuerySnapshot> documentStream =
+  final StreamController<QuerySnapshot> documentStream =
       StreamController<QuerySnapshot>();
 
   @override
@@ -36,9 +36,9 @@ class _HomeScreenState extends State<HomeScreen> {
           .doc(_auth.currentUser.uid)
           .collection("tasks")
           .orderBy(
-            'deadline',
-            descending: false,
-          )
+        'deadline',
+        descending: false,
+      )
           .snapshots(),
     );
   }
@@ -56,19 +56,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _onLogout() async {
-    try {
-      await _auth.signOut();
-      await _googleSignIn.signOut();
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginScreen()),
-      );
-    } catch (e) {
-      print(e);
-    }
-  }
-
   void _goToEdit(QueryDocumentSnapshot documentSnapshot) {
     Navigator.push(
       context,
@@ -83,6 +70,19 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  void _onLogout() async {
+    try {
+      await _auth.signOut();
+      await _googleSignIn.signOut();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+      );
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -103,8 +103,10 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
             return Center(
-                child:
-                    Text("failed to fetch data ${snapshot.error.toString()}"));
+              child: Text(
+                "failed to fetch data ${snapshot.error.toString()}",
+              ),
+            );
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -113,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return ListView.builder(
             itemBuilder: (BuildContext context, int position) {
               QueryDocumentSnapshot document = list[position];
-              return ToDoCard(
+              return TodoCard(
                 id: document.id,
                 title: document.data()["title"],
                 desc: document.data()["description"],

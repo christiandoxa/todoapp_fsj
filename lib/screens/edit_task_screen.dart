@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:todoapp_fsj/helpers/firebase_storage.dart';
 import 'package:todoapp_fsj/helpers/notification.dart';
@@ -64,19 +63,17 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         setState(() {
           _loading = true;
         });
-        String attachment;
-        if (file != null) {
-          await getRefFromUrl(widget.imageUrl)?.delete();
-          UploadTask task = await uploadFile(file);
-          TaskSnapshot taskSnapshot = await task;
-          attachment = await taskSnapshot.ref.getDownloadURL();
-        }
         await addOrEditNotification(
           notificationId: widget.notificationId,
           title: _titleController.text,
           description: _descController.text,
           deadline: deadline,
         );
+        String attachment;
+        if (file != null) {
+          await getRefFromUrl(widget.imageUrl)?.delete();
+          attachment = await uploadFile(file);
+        }
         await tasks.doc(widget.id).update({
           "title": _titleController.text,
           "description": _descController.text,
@@ -112,8 +109,13 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
       setState(() {
         _loadingDelete = false;
       });
-      _scaffoldKey.currentState
-          .showSnackBar(SnackBar(content: Text("Error delete data")));
+      _scaffoldKey.currentState.showSnackBar(
+        SnackBar(
+          content: Text(
+            "Error delete data",
+          ),
+        ),
+      );
       print(e);
     }
   }

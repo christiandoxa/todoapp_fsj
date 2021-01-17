@@ -1,9 +1,7 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:todoapp_fsj/helpers/firebase_storage.dart';
 import 'package:todoapp_fsj/helpers/notification.dart';
@@ -25,7 +23,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       .collection("users")
       .doc(FirebaseAuth.instance.currentUser.uid)
       .collection('tasks');
-  Timestamp _deadline = Timestamp.now();
   bool _loading = false;
 
   @override
@@ -41,19 +38,15 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         setState(() {
           _loading = true;
         });
-        String attachment;
-        if (file != null) {
-          UploadTask task = await uploadFile(file);
-          TaskSnapshot taskSnapshot = await task;
-          attachment = await taskSnapshot.ref.getDownloadURL();
-        }
-        int notificationId = Random().nextInt(1000000);
+        int notificationId = Timestamp.now().nanoseconds;
         await addOrEditNotification(
           notificationId: notificationId,
           title: _titleController.text,
           description: _descController.text,
           deadline: deadline,
         );
+        String attachment;
+        if (file != null) attachment = await uploadFile(file);
         await tasks.add({
           "title": _titleController.text,
           "description": _descController.text,
@@ -90,7 +83,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           formKey: _formKey,
           titleController: _titleController,
           descController: _descController,
-          deadline: _deadline,
           onSubmit: _onAddTask,
           loading: _loading,
           btnText: 'Tambah',
