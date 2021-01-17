@@ -78,6 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
           title: documentSnapshot.data()['title'],
           desc: documentSnapshot.data()['description'],
           deadline: documentSnapshot.data()['deadline'],
+          imageUrl: documentSnapshot.data()['attachment'],
         ),
       ),
     );

@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:todoapp_fsj/helpers/firebase_storage.dart';
 import 'package:todoapp_fsj/widgets/task_form.dart';
 
 class EditTaskScreen extends StatefulWidget {
@@ -8,6 +12,7 @@ class EditTaskScreen extends StatefulWidget {
   final String title;
   final String desc;
   final Timestamp deadline;
+  final String imageUrl;
 
   EditTaskScreen({
     Key key,
@@ -15,6 +20,7 @@ class EditTaskScreen extends StatefulWidget {
     @required this.title,
     @required this.deadline,
     this.desc,
+    this.imageUrl,
   }) : super(key: key);
 
   @override
@@ -49,16 +55,24 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     super.dispose();
   }
 
-  void _onEditTask(Timestamp deadline) async {
+  void _onEditTask(Timestamp deadline, File file) async {
     if (!_loading && _formKey.currentState.validate()) {
       try {
         setState(() {
           _loading = true;
         });
+        String attachment;
+        if (file != null) {
+          await getRefFromUrl(widget.imageUrl)?.delete();
+          UploadTask task = await uploadFile(file);
+          TaskSnapshot taskSnapshot = await task;
+          attachment = await taskSnapshot.ref.getDownloadURL();
+        }
         await tasks.doc(widget.id).update({
           "title": _titleController.text,
           "description": _descController.text,
           "deadline": deadline,
+          "attachment": attachment,
         });
         Navigator.of(context).pop();
       } catch (error) {
@@ -77,6 +91,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
       setState(() {
         _loadingDelete = true;
       });
+      await getRefFromUrl(widget.imageUrl)?.delete();
       await tasks.doc(widget.id).delete();
       Navigator.of(context).pop();
     } catch (e) {
@@ -115,6 +130,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
           onSubmit: _onEditTask,
           loading: _loading,
           btnText: 'Ubah',
+          imageUrl: widget.imageUrl,
         ),
       ),
     );

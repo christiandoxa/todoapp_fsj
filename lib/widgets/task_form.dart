@@ -1,14 +1,18 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class TaskForm extends StatefulWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController titleController;
   final TextEditingController descController;
   final Timestamp deadline;
-  final Function(Timestamp deadline) onSubmit;
+  final Function(Timestamp deadline, File file) onSubmit;
   final bool loading;
   final String btnText;
+  final String imageUrl;
 
   const TaskForm({
     Key key,
@@ -19,6 +23,7 @@ class TaskForm extends StatefulWidget {
     @required this.onSubmit,
     @required this.loading,
     @required this.btnText,
+    this.imageUrl,
   }) : super(key: key);
 
   @override
@@ -26,6 +31,8 @@ class TaskForm extends StatefulWidget {
 }
 
 class _TaskFormState extends State<TaskForm> {
+  final _picker = ImagePicker();
+  File _image;
   Timestamp _deadline;
 
   @override
@@ -68,6 +75,16 @@ class _TaskFormState extends State<TaskForm> {
           selected.hour,
           selected.minute,
         ));
+      });
+    }
+  }
+
+  void _selectImage() async {
+    final pickedFile = await _picker.getImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
       });
     }
   }
@@ -116,7 +133,7 @@ class _TaskFormState extends State<TaskForm> {
             Padding(
               padding: EdgeInsets.only(top: 12, bottom: 4),
               child: Text(
-                'Tanggal',
+                'Jam',
                 style: Theme.of(context).textTheme.caption,
               ),
             ),
@@ -127,12 +144,41 @@ class _TaskFormState extends State<TaskForm> {
                 child: Text('${_date.hour}:${_date.minute}'),
               ),
             ),
+            Padding(
+              padding: EdgeInsets.only(top: 12, bottom: 4),
+              child: Text(
+                'Lampiran',
+                style: Theme.of(context).textTheme.caption,
+              ),
+            ),
+            InkWell(
+              onTap: _selectImage,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: Text(_image == null ? 'Pilih gambar' : 'Ubah gambar'),
+              ),
+            ),
+            _image != null
+                ? Padding(
+                    padding: EdgeInsets.only(top: 8),
+                    child: Center(child: Image.file(_image, height: 200)),
+                  )
+                : SizedBox(),
+            _image == null && widget.imageUrl != null
+                ? Padding(
+                    padding: EdgeInsets.only(top: 8),
+                    child: Center(
+                      child: Image.network(widget.imageUrl, height: 200),
+                    ),
+                  )
+                : SizedBox(),
             SizedBox(height: 18),
             SizedBox(
               width: MediaQuery.of(context).size.width,
               child: RaisedButton(
-                onPressed:
-                    widget.loading ? null : () => widget.onSubmit(_deadline),
+                onPressed: widget.loading
+                    ? null
+                    : () => widget.onSubmit(_deadline, _image),
                 child: widget.loading
                     ? CircularProgressIndicator()
                     : Text(widget.btnText),

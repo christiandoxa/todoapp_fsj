@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:todoapp_fsj/helpers/firebase_storage.dart';
 import 'package:todoapp_fsj/widgets/task_form.dart';
 
 class AddTaskScreen extends StatefulWidget {
@@ -29,16 +33,23 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     super.dispose();
   }
 
-  void _onAddTask(Timestamp deadline) async {
+  void _onAddTask(Timestamp deadline, File file) async {
     if (!_loading && _formKey.currentState.validate()) {
       try {
         setState(() {
           _loading = true;
         });
+        String attachment;
+        if (file != null) {
+          UploadTask task = await uploadFile(file);
+          TaskSnapshot taskSnapshot = await task;
+          attachment = await taskSnapshot.ref.getDownloadURL();
+        }
         await tasks.add({
           "title": _titleController.text,
           "description": _descController.text,
           "deadline": deadline,
+          "attachment": attachment,
         });
         Navigator.of(context).pop();
       } catch (error) {
