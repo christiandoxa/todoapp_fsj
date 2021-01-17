@@ -36,9 +36,9 @@ class _HomeScreenState extends State<HomeScreen> {
           .doc(_auth.currentUser.uid)
           .collection("tasks")
           .orderBy(
-        'deadline',
-        descending: false,
-      )
+            'deadline',
+            descending: false,
+          )
           .snapshots(),
     );
   }
@@ -64,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
           id: documentSnapshot.id,
           title: documentSnapshot.data()['title'],
           desc: documentSnapshot.data()['description'],
-          deadline: documentSnapshot.data()['deadline'],
+          deadline: (documentSnapshot.data()['deadline'] as Timestamp).toDate(),
           imageUrl: documentSnapshot.data()['attachment'],
           notificationId: documentSnapshot.data()["notificationId"],
         ),

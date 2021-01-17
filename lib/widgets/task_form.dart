@@ -1,18 +1,17 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class TaskForm extends StatefulWidget {
   final bool loading;
-  final Function(Timestamp deadline, File file) onSubmit;
+  final Function(DateTime deadline, File file) onSubmit;
   final GlobalKey<FormState> formKey;
   final String btnText;
   final String imageUrl;
   final TextEditingController descController;
   final TextEditingController titleController;
-  final Timestamp deadline;
+  final DateTime deadline;
 
   const TaskForm({
     Key key,
@@ -33,30 +32,30 @@ class TaskForm extends StatefulWidget {
 class _TaskFormState extends State<TaskForm> {
   final _picker = ImagePicker();
   File _image;
-  Timestamp _deadline;
+  DateTime _deadline;
 
   @override
   void initState() {
     super.initState();
-    _deadline = widget.deadline ?? Timestamp.now();
+    _deadline = widget.deadline ?? DateTime.now();
   }
 
   void _selectDate() async {
     final DateTime selected = await showDatePicker(
       context: context,
-      initialDate: _deadline.toDate(),
+      initialDate: _deadline,
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(Duration(days: 3600)),
     );
     if (selected != null) {
       setState(() {
-        _deadline = Timestamp.fromDate(DateTime(
+        _deadline = DateTime(
           selected.year,
           selected.month,
           selected.day,
-          _deadline.toDate().hour,
-          _deadline.toDate().minute,
-        ));
+          _deadline.hour,
+          _deadline.minute,
+        );
       });
     }
   }
@@ -64,17 +63,17 @@ class _TaskFormState extends State<TaskForm> {
   void _selectTime() async {
     final TimeOfDay selected = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.fromDateTime(_deadline.toDate()),
+      initialTime: TimeOfDay.fromDateTime(_deadline),
     );
     if (selected != null) {
       setState(() {
-        _deadline = Timestamp.fromDate(DateTime(
-          _deadline.toDate().year,
-          _deadline.toDate().month,
-          _deadline.toDate().day,
+        _deadline = DateTime(
+          _deadline.year,
+          _deadline.month,
+          _deadline.day,
           selected.hour,
           selected.minute,
-        ));
+        );
       });
     }
   }
@@ -91,8 +90,6 @@ class _TaskFormState extends State<TaskForm> {
 
   @override
   Widget build(BuildContext context) {
-    final DateTime _date = _deadline.toDate();
-
     return Form(
       key: widget.formKey,
       child: Padding(
@@ -127,7 +124,8 @@ class _TaskFormState extends State<TaskForm> {
               onTap: _selectDate,
               child: SizedBox(
                 width: MediaQuery.of(context).size.width,
-                child: Text('${_date.day}/${_date.month}/${_date.year}'),
+                child: Text(
+                    '${_deadline.day}/${_deadline.month}/${_deadline.year}'),
               ),
             ),
             Padding(
@@ -141,7 +139,7 @@ class _TaskFormState extends State<TaskForm> {
               onTap: _selectTime,
               child: SizedBox(
                 width: MediaQuery.of(context).size.width,
-                child: Text('${_date.hour}:${_date.minute}'),
+                child: Text('${_deadline.hour}:${_deadline.minute}'),
               ),
             ),
             Padding(

@@ -32,7 +32,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     super.dispose();
   }
 
-  void _onAddTask(Timestamp deadline, File file) async {
+  void _onAddTask(DateTime deadline, File file) async {
     if (!_loading && _formKey.currentState.validate()) {
       try {
         setState(() {
@@ -43,7 +43,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           notificationId: notificationId,
           title: _titleController.text,
           description: _descController.text,
-          deadline: deadline,
+          deadline: Timestamp.fromDate(deadline),
         );
         String attachment;
         if (file != null) attachment = await uploadFile(file);

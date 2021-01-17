@@ -11,7 +11,7 @@ class EditTaskScreen extends StatefulWidget {
   final String id;
   final String title;
   final String desc;
-  final Timestamp deadline;
+  final DateTime deadline;
   final String imageUrl;
   final int notificationId;
 
@@ -38,7 +38,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
       .collection("users")
       .doc(FirebaseAuth.instance.currentUser.uid)
       .collection('tasks');
-  Timestamp _deadline = Timestamp.now();
+  DateTime _deadline = DateTime.now();
   bool _loading = false;
   bool _loadingDelete = false;
 
@@ -57,7 +57,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     super.dispose();
   }
 
-  void _onEditTask(Timestamp deadline, File file) async {
+  void _onEditTask(DateTime deadline, File file) async {
     if (!_loading && _formKey.currentState.validate()) {
       try {
         setState(() {
@@ -67,7 +67,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
           notificationId: widget.notificationId,
           title: _titleController.text,
           description: _descController.text,
-          deadline: deadline,
+          deadline: Timestamp.fromDate(deadline),
         );
         String attachment;
         if (file != null) {
