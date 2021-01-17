@@ -22,6 +22,6 @@ Future<UploadTask> uploadFile(File file) async {
 }
 
 Reference getRefFromUrl(String url) {
-  if (url == null && url.isEmpty) return null;
+  if (url == null || url.isEmpty) return null;
   return FirebaseStorage.instance.refFromURL(url);
 }
