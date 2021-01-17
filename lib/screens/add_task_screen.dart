@@ -43,14 +43,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           notificationId: notificationId,
           title: _titleController.text,
           description: _descController.text,
-          deadline: Timestamp.fromDate(deadline),
+          deadline: deadline,
         );
         String attachment;
         if (file != null) attachment = await uploadFile(file);
         await tasks.add({
           "title": _titleController.text,
           "description": _descController.text,
-          "deadline": deadline,
+          "deadline": Timestamp.fromDate(deadline),
           "attachment": attachment,
           "notificationId": notificationId,
         });

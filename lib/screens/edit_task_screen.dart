@@ -67,7 +67,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
           notificationId: widget.notificationId,
           title: _titleController.text,
           description: _descController.text,
-          deadline: Timestamp.fromDate(deadline),
+          deadline: deadline,
         );
         String attachment;
         if (file != null) {
@@ -77,7 +77,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         await tasks.doc(widget.id).update({
           "title": _titleController.text,
           "description": _descController.text,
-          "deadline": deadline,
+          "deadline": Timestamp.fromDate(deadline),
           "attachment": attachment,
         });
         Navigator.of(context).pop();
