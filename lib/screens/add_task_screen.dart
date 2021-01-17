@@ -1,6 +1,12 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
+import 'package:todoapp_fsj/main.dart';
 import 'package:todoapp_fsj/widgets/task_form.dart';
 
 class AddTaskScreen extends StatefulWidget {
@@ -23,6 +29,12 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   bool _loading = false;
 
   @override
+  void initState() {
+    super.initState();
+    tz.initializeTimeZones();
+  }
+
+  @override
   void dispose() {
     _titleController?.dispose();
     _descController?.dispose();
@@ -35,6 +47,22 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         setState(() {
           _loading = true;
         });
+        await flutterLocalNotificationsPlugin.zonedSchedule(
+          Random().nextInt(1000000),
+          _titleController.text,
+          _descController.text,
+          tz.TZDateTime.from(deadline.toDate(), tz.local),
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'deadline',
+              'Deadline Tasks',
+              'Deadline for tasks',
+            ),
+          ),
+          androidAllowWhileIdle: true,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+        );
         await tasks.add({
           "title": _titleController.text,
           "description": _descController.text,
