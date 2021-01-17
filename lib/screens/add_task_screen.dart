@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:todoapp_fsj/helpers/firebase_storage.dart';
+import 'package:todoapp_fsj/helpers/notification.dart';
 import 'package:todoapp_fsj/widgets/task_form.dart';
 
 class AddTaskScreen extends StatefulWidget {
@@ -45,19 +47,32 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           TaskSnapshot taskSnapshot = await task;
           attachment = await taskSnapshot.ref.getDownloadURL();
         }
+        int notificationId = Random().nextInt(1000000);
+        await addOrEditNotification(
+          notificationId: notificationId,
+          title: _titleController.text,
+          description: _descController.text,
+          deadline: deadline,
+        );
         await tasks.add({
           "title": _titleController.text,
           "description": _descController.text,
           "deadline": deadline,
           "attachment": attachment,
+          "notificationId": notificationId,
         });
         Navigator.of(context).pop();
       } catch (error) {
         setState(() {
           _loading = false;
         });
-        _scaffoldKey.currentState
-            .showSnackBar(SnackBar(content: Text("Error add data")));
+        _scaffoldKey.currentState.showSnackBar(
+          SnackBar(
+            content: Text(
+              "Error add data ${error.toString()}",
+            ),
+          ),
+        );
         print(error);
       }
     }

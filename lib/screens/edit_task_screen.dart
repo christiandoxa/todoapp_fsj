@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:todoapp_fsj/helpers/firebase_storage.dart';
+import 'package:todoapp_fsj/helpers/notification.dart';
 import 'package:todoapp_fsj/widgets/task_form.dart';
 
 class EditTaskScreen extends StatefulWidget {
@@ -13,12 +14,14 @@ class EditTaskScreen extends StatefulWidget {
   final String desc;
   final Timestamp deadline;
   final String imageUrl;
+  final int notificationId;
 
   EditTaskScreen({
     Key key,
     @required this.id,
     @required this.title,
     @required this.deadline,
+    @required this.notificationId,
     this.desc,
     this.imageUrl,
   }) : super(key: key);
@@ -68,6 +71,12 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
           TaskSnapshot taskSnapshot = await task;
           attachment = await taskSnapshot.ref.getDownloadURL();
         }
+        await addOrEditNotification(
+          notificationId: widget.notificationId,
+          title: _titleController.text,
+          description: _descController.text,
+          deadline: deadline,
+        );
         await tasks.doc(widget.id).update({
           "title": _titleController.text,
           "description": _descController.text,
@@ -79,8 +88,13 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         setState(() {
           _loading = false;
         });
-        _scaffoldKey.currentState
-            .showSnackBar(SnackBar(content: Text("Error edit data")));
+        _scaffoldKey.currentState.showSnackBar(
+          SnackBar(
+            content: Text(
+              "Error edit data ${error.toString()}",
+            ),
+          ),
+        );
         print(error);
       }
     }
